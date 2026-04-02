@@ -1,7 +1,8 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 
 const componentRegistry: Record<string, React.ComponentType<any>> = {};
+const mountedRoots: { element: Element; root: Root; name: string; props: any }[] = [];
 
 export function registerComponent(
   name: string,
@@ -11,6 +12,9 @@ export function registerComponent(
 }
 
 function mountComponents() {
+  mountedRoots.forEach(({ root }) => root.unmount());
+  mountedRoots.length = 0;
+
   const mountPoints = document.querySelectorAll("[data-react-component]");
   mountPoints.forEach((element) => {
     const name = element.getAttribute("data-react-component");
@@ -25,6 +29,16 @@ function mountComponents() {
     const Component = componentRegistry[name];
     const root = createRoot(element);
     root.render(<Component {...props} />);
+    mountedRoots.push({ element, root, name, props });
+  });
+}
+
+export function remountComponents() {
+  mountedRoots.forEach(({ root, name, props }) => {
+    const Component = componentRegistry[name];
+    if (Component) {
+      root.render(<Component {...props} />);
+    }
   });
 }
 
