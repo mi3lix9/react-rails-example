@@ -1,4 +1,3 @@
-<%# app/views/products/show.html.erb %>
-<h1><%= @product.name %></h1>
-
-<%= link_to "Back to products", products_path %>
+<div data-react-component="ProductShow"
+     data-react-props="<%= j({product: {id: @product.id, name: @product.name}}.to_json) %>">
+</div>
