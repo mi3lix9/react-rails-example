@@ -1,7 +1,8 @@
 <div data-react-component="ProductForm"
      data-react-props="<%= j({
-       product: {name: @product.name || ''},
-       action: products_path,
+       product: {id: @product.id, name: @product.name},
+       action: product_path(@product),
+       method: 'patch',
        authenticityToken: form_authenticity_token
      }.to_json) %>">
 </div>
