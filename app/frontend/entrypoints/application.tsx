@@ -1,24 +1,9 @@
-import { registerComponent, remountComponents } from "../components/mountComponent";
-import ProductIndex from "../components/ProductIndex";
-import ProductShow from "../components/ProductShow";
-import ProductForm from "../components/ProductForm";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "../components/App";
 
-registerComponent("ProductIndex", ProductIndex);
-registerComponent("ProductShow", ProductShow);
-registerComponent("ProductForm", ProductForm);
-
-if (import.meta.hot) {
-  import.meta.hot.accept(
-    [
-      "../components/ProductIndex",
-      "../components/ProductShow",
-      "../components/ProductForm",
-    ],
-    ([newIndex, newShow, newForm]) => {
-      if (newIndex) registerComponent("ProductIndex", newIndex.default);
-      if (newShow) registerComponent("ProductShow", newShow.default);
-      if (newForm) registerComponent("ProductForm", newForm.default);
-      remountComponents();
-    }
-  );
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
 }

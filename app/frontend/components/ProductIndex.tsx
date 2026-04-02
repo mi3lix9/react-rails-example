@@ -1,23 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 interface Product {
   id: number;
   name: string;
 }
 
-interface ProductIndexProps {
-  products: Product[];
-}
+export default function ProductIndex() {
+  const [products, setProducts] = useState<Product[]>([]);
 
-export default function ProductIndex({ products }: ProductIndexProps) {
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then(setProducts);
+  }, []);
+
   return (
     <div>
       <h1>Products</h1>
-      <a href="/products/new">New product</a>
-      <div id="products">
+      <Link to="/products/new">New product</Link>
+      <div>
         {products.map((product) => (
           <div key={product.id}>
-            <a href={`/products/${product.id}`}>{product.name}</a>
+            <Link to={`/products/${product.id}`}>{product.name}</Link>
           </div>
         ))}
       </div>
