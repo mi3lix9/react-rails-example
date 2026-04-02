@@ -11,9 +11,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/javascript/*"]
+      "@/*": ["./app/frontend/*"]
     }
   },
-  "include": ["app/javascript/**/*"]
+  "include": ["app/frontend/**/*"]
 }
