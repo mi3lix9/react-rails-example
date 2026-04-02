@@ -1,11 +1,3 @@
-<h1>Products</h1>
-
-<%= link_to "New product", new_product_path %>
-
-<div id="products">
-  <% @products.each do |product| %>
-    <div>
-      <%= link_to product.name, product_path(product.id) %>
-    </div>
-  <% end %>
+<div data-react-component="ProductIndex"
+     data-react-props="<%= j({products: @products.map { |p| {id: p.id, name: p.name} }}.to_json) %>">
 </div>
