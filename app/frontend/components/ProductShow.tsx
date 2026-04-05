@@ -1,4 +1,5 @@
-import { Link } from "@inertiajs/react";
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,14 +9,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-interface Props {
-  product: {
-    id: number;
-    name: string;
-  };
+interface Product {
+  id: number;
+  name: string;
 }
 
-export default function Show({ product }: Props) {
+export default function ProductShow() {
+  const { id } = useParams();
+  const [product, setProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/products/${id}`)
+      .then((res) => res.json())
+      .then(setProduct);
+  }, [id]);
+
+  if (!product) return <div className="p-10 text-center">Loading...</div>;
+
   return (
     <div className="mx-auto max-w-md py-10 px-4">
       <Card>
@@ -27,10 +37,10 @@ export default function Show({ product }: Props) {
         </CardContent>
         <CardFooter className="flex gap-2">
           <Button asChild>
-            <Link href={`/products/${product.id}/edit`}>Edit</Link>
+            <Link to={`/products/${product.id}/edit`}>Edit</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/products">Back to products</Link>
+            <Link to="/products">Back to products</Link>
           </Button>
         </CardFooter>
       </Card>

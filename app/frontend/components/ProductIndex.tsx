@@ -1,4 +1,5 @@
-import { Link } from "@inertiajs/react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,17 +15,21 @@ interface Product {
   name: string;
 }
 
-interface Props {
-  products: Product[];
-}
+export default function ProductIndex() {
+  const [products, setProducts] = useState<Product[]>([]);
 
-export default function Index({ products }: Props) {
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then(setProducts);
+  }, []);
+
   return (
     <div className="mx-auto max-w-2xl py-10 px-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Products</h1>
         <Button asChild>
-          <Link href="/products/new">New product</Link>
+          <Link to="/products/new">New product</Link>
         </Button>
       </div>
       <Table>
@@ -38,13 +43,16 @@ export default function Index({ products }: Props) {
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                <Link href={`/products/${product.id}`} className="hover:underline">
+                <Link
+                  to={`/products/${product.id}`}
+                  className="hover:underline"
+                >
                   {product.name}
                 </Link>
               </TableCell>
               <TableCell className="text-right">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/products/${product.id}/edit`}>Edit</Link>
+                  <Link to={`/products/${product.id}/edit`}>Edit</Link>
                 </Button>
               </TableCell>
             </TableRow>
