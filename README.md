@@ -1,12 +1,12 @@
 # Rails + React: A Fullstack Integration Guide
 
-A hands-on exploration of using Ruby on Rails with React, Vite, Inertia.js, and shadcn/ui — built to evaluate how well these tools work together for fullstack development.
+A hands-on exploration of using Ruby on Rails with React, Vite, Inertia.js, and shadcn/ui — built to evaluate how well these tools work together for fullstack PWA development.
 
 > This project was ~90% written with AI (Claude Code) to test how productive this stack is with AI-assisted development. The integration was smooth and the result speaks for itself.
 
 ## What We Were Exploring
 
-We wanted to find out: can fullstack developers use Ruby on Rails without giving up the frontend DX they're used to? Specifically — can we keep React, Vite, TypeScript, and shadcn/ui while getting Rails' backend conventions, and have it all work together cleanly with SSR?
+We wanted to find out: can fullstack developers use Ruby on Rails without giving up the frontend DX they're used to? Specifically — can we keep React, Vite, TypeScript, and shadcn/ui while getting Rails' backend conventions, and have it all work together cleanly with SSR and PWA support?
 
 **Short answer: yes.** Inertia.js is the bridge that makes it work.
 
@@ -52,14 +52,25 @@ export default function Index({ products }: Props) {
 }
 ```
 
-### Vite — Frontend Tooling
+### Vite — Frontend Tooling + PWA
 
-Vite replaces the Rails asset pipeline entirely. One config file gives you TypeScript, JSX, Hot Module Replacement, Tailwind CSS, and SSR builds. In development, editing a React component updates the browser instantly without a page reload.
+Vite replaces the Rails asset pipeline entirely. One config file gives you TypeScript, JSX, Hot Module Replacement, Tailwind CSS, SSR builds, and PWA support. In development, editing a React component updates the browser instantly without a page reload.
+
+The [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) adds Progressive Web App capabilities — a web app manifest, service worker with auto-update, and offline caching via Workbox. Users can install the app to their home screen and get a native-like experience.
 
 ```typescript
 // vite.config.ts — everything in one place
 export default defineConfig({
-  plugins: [ViteRuby(), inertia({ ssr: { enabled: true } }), react(), tailwindcss()],
+  plugins: [
+    ViteRuby(),
+    inertia({ ssr: { enabled: true } }),
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      manifest: { name: "Store", short_name: "Store", display: "standalone" },
+    }),
+  ],
 });
 ```
 
@@ -144,7 +155,7 @@ app/
       index.css                   # Tailwind + shadcn theme
 config/
   routes.rb                       # Standard resourceful routes
-vite.config.ts                    # Vite + Inertia + React + Tailwind
+vite.config.ts                    # Vite + Inertia + React + Tailwind + PWA
 lefthook.yml                      # Pre-commit hooks (oxlint + RuboCop)
 oxlint.json                       # oxlint configuration
 ```
@@ -153,7 +164,7 @@ oxlint.json                       # oxlint configuration
 
 If you want to understand how the integration works, start here:
 
-- **`vite.config.ts`** — How Vite, Inertia, React, and Tailwind are wired together
+- **`vite.config.ts`** — How Vite, Inertia, React, Tailwind, and PWA are wired together
 - **`config/routes.rb`** — Standard Rails routes, no catch-all needed
 - **`app/controllers/products_controller.rb`** — How Rails passes props to React
 - **`app/frontend/entrypoints/application.tsx`** — How Inertia boots on the client
