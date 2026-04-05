@@ -1,14 +1,14 @@
 class ProductsController < ApplicationController
   def index
     render inertia: "Products/Index", props: {
-      products: Product.all.map { |p| { id: p.id, name: p.name } }
+      products: Product.all.map { |p| { id: p.id, name: p.name, price: p.price.to_f } }
     }
   end
 
   def show
     product = Product.find(params[:id])
     render inertia: "Products/Show", props: {
-      product: { id: product.id, name: product.name }
+      product: { id: product.id, name: product.name, price: product.price.to_f }
     }
   end
 
@@ -28,7 +28,7 @@ class ProductsController < ApplicationController
   def edit
     product = Product.find(params[:id])
     render inertia: "Products/Edit", props: {
-      product: { id: product.id, name: product.name }
+      product: { id: product.id, name: product.name, price: product.price.to_f }
     }
   end
 
@@ -50,6 +50,6 @@ class ProductsController < ApplicationController
   private
 
   def product_params
-    params.require(:product).permit(:name)
+    params.require(:product).permit(:name, :price)
   end
 end

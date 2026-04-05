@@ -23,6 +23,7 @@ interface Props {
   product: {
     id: number;
     name: string;
+    price: number;
   };
 }
 
@@ -33,8 +34,9 @@ export default function Show({ product }: Props) {
         <CardHeader>
           <CardTitle className="text-2xl">{product.name}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-1">
           <p className="text-muted-foreground">Product #{product.id}</p>
+          <p className="text-xl font-semibold">${product.price.toFixed(2)}</p>
         </CardContent>
         <CardFooter className="flex gap-2">
           <Button asChild>
