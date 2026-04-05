@@ -10,12 +10,6 @@ gem "sqlite3", ">= 2.1"
 gem "puma", ">= 5.0"
 # Use Vite.js as the frontend build tool [https://vite-ruby.netlify.app/]
 gem "vite_rails"
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "turbo-rails"
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem "stimulus-rails"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
