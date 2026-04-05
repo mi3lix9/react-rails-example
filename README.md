@@ -1,93 +1,116 @@
-# Rails + Vite + React + shadcn/ui
+# Rails + Inertia.js + React + shadcn/ui
 
-A full-stack web application demonstrating how to use **Ruby on Rails** as a JSON API backend with **React** (TypeScript) as a single-page application frontend, powered by **Vite** for blazing-fast development and **shadcn/ui** for beautiful, accessible components.
+A full-stack web application demonstrating how to use **Ruby on Rails** with **Inertia.js** to build modern, server-driven React apps with **SSR**, powered by **Vite** and styled with **shadcn/ui**.
 
 ## The Stack
 
 | Layer | Technology | Role |
 |-------|-----------|------|
-| Backend | Ruby on Rails 8.1 | JSON API, database, routing |
-| Frontend | React 18 + TypeScript | SPA with client-side routing |
-| Bundler | Vite (via vite_rails) | Dev server, HMR, production builds |
-| UI | shadcn/ui + Tailwind CSS v4 | Component library and styling |
-| Routing | React Router | Client-side navigation |
+| Backend | Ruby on Rails 8.1 | Routing, controllers, database |
+| Bridge | Inertia.js | Connects Rails to React (no API needed) |
+| Frontend | React 18 + TypeScript | UI rendering with server-passed props |
+| Bundler | Vite (via vite_rails) | Dev server, HMR, SSR builds |
+| UI | shadcn/ui + Tailwind CSS v4 | Accessible, customizable components |
+| SSR | Inertia SSR + Vite | Server-side rendering via Node.js |
 | Database | SQLite | Data persistence |
 
 ## Why This Stack?
 
-### Rails as API
-- Battle-tested framework for building robust APIs fast
+### Inertia.js — The Glue
+
+Inertia eliminates the gap between Rails and React:
+
+- **No API layer** — Rails controllers pass props directly to React components
+- **No client-side router** — Inertia `<Link>` handles navigation, Rails owns routing
+- **No `fetch()` or loading states** — data arrives as props, ready to render
+- **`useForm` hook** — handles form state, submission, validation errors, and processing state
+- **SSR support** — server-side rendering with zero configuration overhead
+- **Standard Rails redirects** — `redirect_to` just works
+
+```ruby
+# Controller passes props directly to React
+def index
+  render inertia: "Products/Index", props: {
+    products: Product.all.map { |p| { id: p.id, name: p.name } }
+  }
+end
+```
+
+```tsx
+// React component receives props — no fetch, no loading state
+export default function Index({ products }: Props) {
+  return <Table>...</Table>
+}
+```
+
+### Rails as the Backend
+- Battle-tested framework for building web apps fast
 - Active Record makes database operations simple
-- Strong conventions reduce boilerplate (routing, validations, migrations)
-- Mature ecosystem with gems for authentication, authorization, background jobs, etc.
+- Strong conventions reduce boilerplate
+- Mature ecosystem (authentication, background jobs, etc.)
 
-### Vite instead of importmap/Webpacker
-- Hot Module Replacement (HMR) — see changes instantly without page reload
-- Native TypeScript and JSX support — no extra configuration
-- Lightning-fast cold starts — Vite uses esbuild for pre-bundling
-- Modern plugin ecosystem — React Fast Refresh, Tailwind CSS, and more
-- Production builds with tree-shaking and code splitting
-
-### React + TypeScript
-- Component-based UI with type safety
-- Rich ecosystem of libraries and tools
-- React Router for seamless client-side navigation (no full page reloads)
-- State management with hooks (`useState`, `useEffect`)
-- Large community and extensive documentation
+### Vite for Development
+- Hot Module Replacement (HMR) — instant feedback
+- Native TypeScript and JSX support
+- Lightning-fast cold starts via esbuild
+- SSR build support out of the box
 
 ### shadcn/ui
-- Not a component library — you own the code (copy/paste, fully customizable)
-- Built on Radix UI primitives (accessible by default)
-- Styled with Tailwind CSS (consistent, themeable design system)
-- Dark mode support out of the box
-- Components: Button, Card, Table, Input, Label, and 40+ more
+- You own the code — fully customizable
+- Built on Radix UI (accessible by default)
+- Styled with Tailwind CSS
+- 40+ components available
 
 ## Project Structure
 
 ```
 app/
   controllers/
-    api/
-      products_controller.rb    # JSON API endpoints
-    pages_controller.rb         # Serves the SPA shell
+    products_controller.rb      # render inertia: "Products/Index", props: {...}
   models/
     product.rb                  # Active Record model
   frontend/
     entrypoints/
-      application.tsx           # Vite entrypoint, renders React app
+      application.tsx           # createInertiaApp (client)
+      ssr.tsx                   # createInertiaApp (server-side rendering)
+    pages/
+      Products/
+        Index.tsx               # Product listing (receives products as props)
+        Show.tsx                # Product detail (receives product as props)
+        New.tsx                 # Create form (useForm hook)
+        Edit.tsx                # Edit form (useForm hook with initial data)
     components/
-      App.tsx                   # React Router setup
-      ProductIndex.tsx          # Product listing with shadcn Table
-      ProductShow.tsx           # Product detail with shadcn Card
-      ProductForm.tsx           # Create/edit form with shadcn Input
-      ui/                       # shadcn/ui components (Button, Card, etc.)
+      ui/                       # shadcn/ui components
     lib/
       utils.ts                  # Tailwind merge utility
     styles/
       index.css                 # Tailwind CSS + shadcn theme
   views/
     layouts/
-      application.html.erb      # HTML shell with Vite tags
-    pages/
-      index.html.erb            # <div id="root"> mount point
+      application.html.erb      # HTML shell with Vite + Inertia SSR tags
 config/
-  routes.rb                     # API routes + SPA catch-all
-  vite.json                     # Vite Ruby configuration
-vite.config.ts                  # Vite plugins (Ruby, React, Tailwind)
-tsconfig.json                   # TypeScript configuration
+  routes.rb                     # Standard resourceful routes
+  initializers/
+    inertia_rails.rb            # SSR configuration
+vite.config.ts                  # Vite + Inertia + React + Tailwind plugins
 ```
 
 ## How It Works
 
-1. **Rails** handles API requests at `/api/*` and returns JSON
-2. **All other routes** fall through to `PagesController#index`, which renders a single `<div id="root">`
-3. **Vite** bundles the React app and serves it with HMR in development
-4. **React Router** handles client-side navigation between pages
-5. **Components** fetch data from the Rails API using `fetch()`
+```
+Browser → Rails Router → Controller → Inertia → React Component
+                                         ↓
+                              Props passed directly (no API)
+                                         ↓
+                              SSR pre-renders HTML (Node.js)
+```
 
-```
-Browser → React Router → Component → fetch("/api/products") → Rails API → Database
-```
+1. **Request hits Rails** — standard routing, no catch-all needed
+2. **Controller runs** — loads data, calls `render inertia: "ComponentName", props: {...}`
+3. **Inertia serializes** — passes component name + props as JSON
+4. **React renders** — component receives props directly, no fetch needed
+5. **Navigation** — `<Link href="...">` makes Inertia requests (XHR), swaps components without full page reload
+6. **SSR** — on first load, the page is pre-rendered server-side for fast initial paint
 
 ## Getting Started
 
@@ -100,18 +123,14 @@ Browser → React Router → Component → fetch("/api/products") → Rails API 
 ### Setup
 
 ```bash
-# Clone the repo
 git clone https://github.com/mi3lix9/react-rails-example.git
 cd react-rails-example
 
-# Install dependencies
 bundle install
 npm install
 
-# Set up the database
 bin/rails db:create db:migrate
 
-# Start the development server (Rails + Vite)
 bin/dev
 ```
 
@@ -120,13 +139,11 @@ Visit `http://localhost:3000` to see the app.
 ### Adding shadcn Components
 
 ```bash
-# Add any shadcn component
 npx shadcn@latest add dialog
 npx shadcn@latest add dropdown-menu
-npx shadcn@latest add toast
 ```
 
-Then import and use in your React components:
+Then use in your page components:
 
 ```tsx
 import { Button } from "@/components/ui/button";
@@ -134,20 +151,44 @@ import { Button } from "@/components/ui/button";
 <Button variant="outline">Click me</Button>
 ```
 
-## API Endpoints
+## Key Patterns
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/products` | List all products |
-| GET | `/api/products/:id` | Get a single product |
-| POST | `/api/products` | Create a product |
-| PATCH | `/api/products/:id` | Update a product |
-| DELETE | `/api/products/:id` | Delete a product |
+### Passing Props from Rails
+
+```ruby
+def show
+  product = Product.find(params[:id])
+  render inertia: "Products/Show", props: {
+    product: { id: product.id, name: product.name }
+  }
+end
+```
+
+### Forms with Inertia
+
+```tsx
+const form = useForm({ name: "" });
+
+form.post("/products");        // Create
+form.patch(`/products/${id}`); // Update
+form.processing;               // Loading state
+form.errors.name;              // Validation errors
+```
+
+### Navigation
+
+```tsx
+import { Link } from "@inertiajs/react";
+
+<Link href="/products">Products</Link>
+<Link href="/products/new">New</Link>
+```
 
 ## Key Files
 
-- **`vite.config.ts`** — Vite configuration with Ruby, React, and Tailwind plugins
-- **`config/routes.rb`** — API namespace + catch-all route for the SPA
-- **`app/frontend/entrypoints/application.tsx`** — App entry point
-- **`app/frontend/components/App.tsx`** — React Router configuration
-- **`app/frontend/styles/index.css`** — Tailwind + shadcn theme variables
+- **`vite.config.ts`** — Vite with Ruby, Inertia, React, and Tailwind plugins
+- **`config/routes.rb`** — Standard Rails resourceful routes
+- **`app/controllers/products_controller.rb`** — Inertia controller
+- **`app/frontend/entrypoints/application.tsx`** — Client-side Inertia setup
+- **`app/frontend/entrypoints/ssr.tsx`** — Server-side rendering entrypoint
+- **`app/frontend/pages/`** — React page components mapped by Inertia
