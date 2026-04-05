@@ -34,23 +34,74 @@ end
 
 ### Inertia.js — The Bridge
 
-Inertia eliminates the entire API layer. There's no `fetch()`, no loading states, no client-side router. Rails owns routing, React owns rendering, and Inertia handles the handoff. Forms use the `useForm` hook which manages state, submission, validation errors, and loading — all wired to standard Rails controller actions.
+Inertia eliminates the entire API layer. There's no `fetch()`, no loading states, no client-side router. Rails owns routing, React owns rendering, and Inertia handles the handoff. Here's how data flows from backend to frontend:
+
+**The controller sends data to a React component:**
+
+```ruby
+# app/controllers/products_controller.rb
+def show
+  product = Product.find(params[:id])
+  render inertia: "Products/Show", props: {
+    product: { id: product.id, name: product.name, price: product.price.to_f }
+  }
+end
+```
+
+**The React component receives it as props — no fetch, no loading state:**
 
 ```tsx
-export default function Index({ products }: Props) {
-  // Props arrive directly from Rails — no fetch, no useEffect, no loading state
+// app/frontend/pages/Products/Show.tsx
+interface Props {
+  product: { id: number; name: string; price: number };
+}
+
+export default function Show({ product }: Props) {
   return (
-    <Table>
-      {products.map((product) => (
-        <TableRow key={product.id}>
-          <TableCell>{product.name}</TableCell>
-          <TableCell>${product.price.toFixed(2)}</TableCell>
-        </TableRow>
-      ))}
-    </Table>
+    <Card>
+      <CardTitle>{product.name}</CardTitle>
+      <p>${product.price.toFixed(2)}</p>
+    </Card>
   );
 }
 ```
+
+**Forms work the same way in reverse — `useForm` submits to Rails, errors come back as props:**
+
+```tsx
+// app/frontend/pages/Products/New.tsx
+export default function New() {
+  const form = useForm({ name: "", price: "" });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    form.post("/products"); // → hits ProductsController#create
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Input value={form.data.name} onChange={(e) => form.setData("name", e.target.value)} />
+      {form.errors.name && <p>{form.errors.name}</p>}
+      <Button disabled={form.processing}>Create</Button>
+    </form>
+  );
+}
+```
+
+```ruby
+# Rails handles it like a normal controller action
+def create
+  product = Product.new(product_params)
+  if product.save
+    redirect_to product_path(product)  # Inertia navigates to Show page
+  else
+    redirect_back fallback_location: new_product_path,
+      inertia: { errors: product.errors.to_hash(true) }  # errors appear in form.errors
+  end
+end
+```
+
+There is no API. Rails controllers look like normal Rails controllers. React components look like normal React components. Inertia is invisible glue.
 
 ### Vite — Frontend Tooling + PWA
 
