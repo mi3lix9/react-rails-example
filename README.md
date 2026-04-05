@@ -103,6 +103,10 @@ end
 
 There is no API. Rails controllers look like normal Rails controllers. React components look like normal React components. Inertia is invisible glue.
 
+### Real-Time — WebSockets & HTTP Streaming
+
+This stack supports real-time features out of the box. Rails ships with [Action Cable](https://guides.rubyonrails.org/action_cable_overview.html) for WebSockets and native support for Server-Sent Events (SSE). Both work alongside Inertia without conflict.
+
 ### Vite — Frontend Tooling + PWA
 
 Vite replaces the Rails asset pipeline entirely. One config file gives you TypeScript, JSX, Hot Module Replacement, Tailwind CSS, SSR builds, and PWA support. In development, editing a React component updates the browser instantly without a page reload.
