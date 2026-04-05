@@ -1,4 +1,5 @@
 import { Link, router } from "@inertiajs/react";
+import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -71,3 +72,5 @@ export default function Show({ product }: Props) {
     </div>
   );
 }
+
+Show.layout = (page: React.ReactNode) => <Layout>{page}</Layout>;

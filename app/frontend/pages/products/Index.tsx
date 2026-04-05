@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, router } from "@inertiajs/react";
+import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -159,3 +160,5 @@ export default function Index({ products }: Props) {
     </div>
   );
 }
+
+Index.layout = (page: React.ReactNode) => <Layout>{page}</Layout>;

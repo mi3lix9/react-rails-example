@@ -1,4 +1,5 @@
 import { useForm, Link } from "@inertiajs/react";
+import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,3 +77,5 @@ export default function Edit({ product }: Props) {
     </div>
   );
 }
+
+Edit.layout = (page: React.ReactNode) => <Layout>{page}</Layout>;
