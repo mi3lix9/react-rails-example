@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxlint
+      glob: "*.{ts,tsx,js,jsx}"
+      root: "app/frontend/"
+      run: npx oxlint {staged_files}
+
+    - name: rubocop
+      glob: "*.rb"
+      run: bundle exec rubocop --force-exclusion {staged_files}
