@@ -7,6 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Props {
   product: {
@@ -29,16 +40,27 @@ export default function Show({ product }: Props) {
           <Button asChild>
             <Link href={`/products/${product.id}/edit`}>Edit</Link>
           </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              if (confirm("Are you sure?")) {
-                router.delete(`/products/${product.id}`);
-              }
-            }}
-          >
-            Delete
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">Delete</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete product</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => router.delete(`/products/${product.id}`)}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button variant="outline" asChild>
             <Link href="/products">Back to products</Link>
           </Button>
