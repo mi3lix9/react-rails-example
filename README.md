@@ -133,19 +133,48 @@ export default defineConfig({
 
 shadcn/ui provides accessible, customizable components that you copy into your project — you own the code, not a dependency. Combined with Tailwind CSS v4, you get a consistent design system with dark mode support out of the box.
 
-## Code Quality Tooling
+## Recommendations
 
-We strongly recommend enforcing linters and formatters from day one. With a fullstack codebase, both sides need coverage.
+### Use React Without Sacrifices
 
-| Side | Tool | Role |
-|------|------|------|
-| TypeScript/React | [oxlint](https://oxc.rs) | Fast Rust-based linter |
-| Ruby | [RuboCop](https://rubocop.org) (rails-omakase) | Linter + formatter |
-| Ruby | [Brakeman](https://brakemanscanner.org) | Security analysis |
-| Ruby | [Bundler Audit](https://github.com/rubysec/bundler-audit) | Dependency vulnerability scanning |
-| Git hooks | [Lefthook](https://github.com/evilmartians/lefthook) | Runs both linters pre-commit in parallel |
+This stack gives you the full React ecosystem without compromise. You're not locked into Rails-specific UI patterns — you can use any React library, and several packages are purpose-built for this integration:
 
-Lefthook is configured to run oxlint on staged `.tsx/.ts` files and RuboCop on staged `.rb` files — in parallel, on every commit. No code gets committed without passing both.
+| Package | What it does |
+|---------|-------------|
+| [@inertiajs/react](https://inertiajs.com) | Bridge between Rails controllers and React components |
+| [@inertiajs/vite](https://inertiajs.com) | Vite plugin for automatic page resolution and SSR |
+| [@rails/actioncable](https://guides.rubyonrails.org/action_cable_overview.html) | WebSocket client for real-time features with Action Cable |
+| [vite-plugin-pwa](https://vite-pwa-org.netlify.app) | Progressive Web App support (manifest, service worker, offline) |
+| [shadcn/ui](https://ui.shadcn.com) | Accessible components you own (not a dependency) |
+
+The React community and npm ecosystem work as-is — no adapters, no workarounds.
+
+### Enforce Linting From Day One
+
+With a fullstack codebase, both sides need strict linting. We strongly recommend enforcing this before writing any feature code.
+
+**Frontend:**
+
+| Tool | Role |
+|------|------|
+| [oxlint](https://oxc.rs) | Fast Rust-based linter for TypeScript/React |
+| [Ultracite](https://www.ultracite.ai) | Zero-config preset for oxlint — opinionated defaults, AI-agent-friendly rules |
+
+**Backend:**
+
+| Tool | Role |
+|------|------|
+| [RuboCop](https://rubocop.org) (rails-omakase) | Linter + formatter — Rails team's opinionated config |
+| [Brakeman](https://brakemanscanner.org) | Static security analysis |
+| [Bundler Audit](https://github.com/rubysec/bundler-audit) | Dependency vulnerability scanning |
+
+**Enforcement:**
+
+| Tool | Role |
+|------|------|
+| [Lefthook](https://github.com/evilmartians/lefthook) | Runs frontend + backend linters pre-commit in parallel |
+
+No code gets committed without passing both sides. Here's the config:
 
 ```yaml
 # lefthook.yml
