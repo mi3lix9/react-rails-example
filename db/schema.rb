@@ -10,11 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_05_065316) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_05_100938) do
+  create_table "order_items", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "order_id", null: false
+    t.integer "product_id", null: false
+    t.integer "quantity", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_items_on_order_id"
+    t.index ["product_id"], name: "index_order_items_on_product_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "customer_email", null: false
+    t.string "customer_name", null: false
+    t.string "status", default: "pending", null: false
+    t.string "token", null: false
+    t.decimal "total", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_orders_on_token", unique: true
+  end
+
   create_table "products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
     t.decimal "price", precision: 10, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "products"
 end
