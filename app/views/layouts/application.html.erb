@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Store" %></title>
+    <title data-inertia><%= content_for(:title) || "Store" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -11,6 +11,7 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= inertia_ssr_head %>
+    <%= vite_react_refresh_tag %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag "application.tsx" %>
   </head>
