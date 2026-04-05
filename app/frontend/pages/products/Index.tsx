@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -31,7 +31,7 @@ export default function Index({ products }: Props) {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead className="w-24 text-right">Actions</TableHead>
+            <TableHead className="w-36 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -42,9 +42,21 @@ export default function Index({ products }: Props) {
                   {product.name}
                 </Link>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right space-x-1">
                 <Button variant="ghost" size="sm" asChild>
                   <Link href={`/products/${product.id}/edit`}>Edit</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => {
+                    if (confirm("Are you sure?")) {
+                      router.delete(`/products/${product.id}`);
+                    }
+                  }}
+                >
+                  Delete
                 </Button>
               </TableCell>
             </TableRow>

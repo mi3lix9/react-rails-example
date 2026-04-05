@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +28,16 @@ export default function Show({ product }: Props) {
         <CardFooter className="flex gap-2">
           <Button asChild>
             <Link href={`/products/${product.id}/edit`}>Edit</Link>
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              if (confirm("Are you sure?")) {
+                router.delete(`/products/${product.id}`);
+              }
+            }}
+          >
+            Delete
           </Button>
           <Button variant="outline" asChild>
             <Link href="/products">Back to products</Link>
