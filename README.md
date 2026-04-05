@@ -1,116 +1,98 @@
-# Rails + Inertia.js + React + shadcn/ui
+# Rails + React: A Fullstack Integration Guide
 
-A full-stack web application demonstrating how to use **Ruby on Rails** with **Inertia.js** to build modern, server-driven React apps with **SSR**, powered by **Vite** and styled with **shadcn/ui**.
+A hands-on exploration of using Ruby on Rails with React, Vite, Inertia.js, and shadcn/ui — built to evaluate how well these tools work together for fullstack development.
 
-## The Stack
+> This project was ~90% written with AI (Claude Code) to test how productive this stack is with AI-assisted development. The integration was smooth and the result speaks for itself.
 
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Backend | Ruby on Rails 8.1 | Routing, controllers, database |
-| Bridge | Inertia.js | Connects Rails to React (no API needed) |
-| Frontend | React 18 + TypeScript | UI rendering with server-passed props |
-| Bundler | Vite (via vite_rails) | Dev server, HMR, SSR builds |
-| UI | shadcn/ui + Tailwind CSS v4 | Accessible, customizable components |
-| SSR | Inertia SSR + Vite | Server-side rendering via Node.js |
-| Database | SQLite | Data persistence |
+## What We Were Exploring
 
-## Why This Stack?
+We wanted to find out: can fullstack developers use Ruby on Rails without giving up the frontend DX they're used to? Specifically — can we keep React, Vite, TypeScript, and shadcn/ui while getting Rails' backend conventions, and have it all work together cleanly with SSR?
 
-### Inertia.js — The Glue
+**Short answer: yes.** Inertia.js is the bridge that makes it work.
 
-Inertia eliminates the gap between Rails and React:
+## The Integration — One App, One Deploy
 
-- **No API layer** — Rails controllers pass props directly to React components
-- **No client-side router** — Inertia `<Link>` handles navigation, Rails owns routing
-- **No `fetch()` or loading states** — data arrives as props, ready to render
-- **`useForm` hook** — handles form state, submission, validation errors, and processing state
-- **SSR support** — server-side rendering with zero configuration overhead
-- **Standard Rails redirects** — `redirect_to` just works
+This is not two separate apps. There's no standalone React frontend calling a Rails API. It's one codebase, one deployment, one dev server. Rails serves the HTML, Vite bundles the frontend, and Inertia connects them seamlessly.
+
+```
+Request → Rails Router → Controller → Inertia → React Component (Vite + shadcn)
+```
+
+### Rails — Backend Conventions
+
+Rails handles routing, data loading, validations, and database operations. Controllers pass data directly to React components as props — no serializers, no API versioning, no REST endpoints to maintain.
 
 ```ruby
-# Controller passes props directly to React
-def index
-  render inertia: "Products/Index", props: {
-    products: Product.all.map { |p| { id: p.id, name: p.name } }
-  }
+class ProductsController < ApplicationController
+  def index
+    render inertia: "Products/Index", props: {
+      products: Product.all.map { |p| { id: p.id, name: p.name, price: p.price.to_f } }
+    }
+  end
 end
 ```
 
+### Inertia.js — The Bridge
+
+Inertia eliminates the entire API layer. There's no `fetch()`, no loading states, no client-side router. Rails owns routing, React owns rendering, and Inertia handles the handoff. Forms use the `useForm` hook which manages state, submission, validation errors, and loading — all wired to standard Rails controller actions.
+
 ```tsx
-// React component receives props — no fetch, no loading state
 export default function Index({ products }: Props) {
-  return <Table>...</Table>
+  // Props arrive directly from Rails — no fetch, no useEffect, no loading state
+  return (
+    <Table>
+      {products.map((product) => (
+        <TableRow key={product.id}>
+          <TableCell>{product.name}</TableCell>
+          <TableCell>${product.price.toFixed(2)}</TableCell>
+        </TableRow>
+      ))}
+    </Table>
+  );
 }
 ```
 
-### Rails as the Backend
-- Battle-tested framework for building web apps fast
-- Active Record makes database operations simple
-- Strong conventions reduce boilerplate
-- Mature ecosystem (authentication, background jobs, etc.)
+### Vite — Frontend Tooling
 
-### Vite for Development
-- Hot Module Replacement (HMR) — instant feedback
-- Native TypeScript and JSX support
-- Lightning-fast cold starts via esbuild
-- SSR build support out of the box
+Vite replaces the Rails asset pipeline entirely. One config file gives you TypeScript, JSX, Hot Module Replacement, Tailwind CSS, and SSR builds. In development, editing a React component updates the browser instantly without a page reload.
 
-### shadcn/ui
-- You own the code — fully customizable
-- Built on Radix UI (accessible by default)
-- Styled with Tailwind CSS
-- 40+ components available
-
-## Project Structure
-
-```
-app/
-  controllers/
-    products_controller.rb      # render inertia: "Products/Index", props: {...}
-  models/
-    product.rb                  # Active Record model
-  frontend/
-    entrypoints/
-      application.tsx           # createInertiaApp (client)
-      ssr.tsx                   # createInertiaApp (server-side rendering)
-    pages/
-      Products/
-        Index.tsx               # Product listing (receives products as props)
-        Show.tsx                # Product detail (receives product as props)
-        New.tsx                 # Create form (useForm hook)
-        Edit.tsx                # Edit form (useForm hook with initial data)
-    components/
-      ui/                       # shadcn/ui components
-    lib/
-      utils.ts                  # Tailwind merge utility
-    styles/
-      index.css                 # Tailwind CSS + shadcn theme
-  views/
-    layouts/
-      application.html.erb      # HTML shell with Vite + Inertia SSR tags
-config/
-  routes.rb                     # Standard resourceful routes
-  initializers/
-    inertia_rails.rb            # SSR configuration
-vite.config.ts                  # Vite + Inertia + React + Tailwind plugins
+```typescript
+// vite.config.ts — everything in one place
+export default defineConfig({
+  plugins: [ViteRuby(), inertia({ ssr: { enabled: true } }), react(), tailwindcss()],
+});
 ```
 
-## How It Works
+### shadcn/ui + Tailwind — Design System
 
-```
-Browser → Rails Router → Controller → Inertia → React Component
-                                         ↓
-                              Props passed directly (no API)
-                                         ↓
-                              SSR pre-renders HTML (Node.js)
-```
+shadcn/ui provides accessible, customizable components that you copy into your project — you own the code, not a dependency. Combined with Tailwind CSS v4, you get a consistent design system with dark mode support out of the box.
 
-1. **Request hits Rails** — standard routing, no catch-all needed
-2. **Controller runs** — loads data, calls `render inertia: "ComponentName", props: {...}`
-3. **Inertia serializes** — passes component name + props as JSON
-4. **React renders** — component receives props directly, no fetch needed
-5. **Navigation** — `<Link href="...">` makes Inertia requests (XHR), swaps components without full page reload
-6. **SSR** — on first load, the page is pre-rendered server-side for fast initial paint
+## Code Quality Tooling
+
+We strongly recommend enforcing linters and formatters from day one. With a fullstack codebase, both sides need coverage.
+
+| Side | Tool | Role |
+|------|------|------|
+| TypeScript/React | [oxlint](https://oxc.rs) | Fast Rust-based linter |
+| Ruby | [RuboCop](https://rubocop.org) (rails-omakase) | Linter + formatter |
+| Ruby | [Brakeman](https://brakemanscanner.org) | Security analysis |
+| Ruby | [Bundler Audit](https://github.com/rubysec/bundler-audit) | Dependency vulnerability scanning |
+| Git hooks | [Lefthook](https://github.com/evilmartians/lefthook) | Runs both linters pre-commit in parallel |
+
+Lefthook is configured to run oxlint on staged `.tsx/.ts` files and RuboCop on staged `.rb` files — in parallel, on every commit. No code gets committed without passing both.
+
+```yaml
+# lefthook.yml
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxlint
+      glob: "*.{ts,tsx,js,jsx}"
+      run: npx oxlint {staged_files}
+    - name: rubocop
+      glob: "*.rb"
+      run: bundle exec rubocop --force-exclusion {staged_files}
+```
 
 ## Getting Started
 
@@ -136,59 +118,44 @@ bin/dev
 
 Visit `http://localhost:3000` to see the app.
 
-### Adding shadcn Components
+### Project Structure
 
-```bash
-npx shadcn@latest add dialog
-npx shadcn@latest add dropdown-menu
 ```
-
-Then use in your page components:
-
-```tsx
-import { Button } from "@/components/ui/button";
-
-<Button variant="outline">Click me</Button>
-```
-
-## Key Patterns
-
-### Passing Props from Rails
-
-```ruby
-def show
-  product = Product.find(params[:id])
-  render inertia: "Products/Show", props: {
-    product: { id: product.id, name: product.name }
-  }
-end
-```
-
-### Forms with Inertia
-
-```tsx
-const form = useForm({ name: "" });
-
-form.post("/products");        // Create
-form.patch(`/products/${id}`); // Update
-form.processing;               // Loading state
-form.errors.name;              // Validation errors
-```
-
-### Navigation
-
-```tsx
-import { Link } from "@inertiajs/react";
-
-<Link href="/products">Products</Link>
-<Link href="/products/new">New</Link>
+app/
+  controllers/
+    products_controller.rb        # render inertia: "Products/Index", props: {...}
+  models/
+    product.rb                    # Active Record model with validations
+  frontend/
+    entrypoints/
+      application.tsx             # Inertia client setup
+      ssr.tsx                     # Inertia SSR setup
+    pages/
+      Products/
+        Index.tsx                 # List, search, sort, delete
+        Show.tsx                  # Detail view
+        New.tsx                   # Create form (useForm)
+        Edit.tsx                  # Edit form (useForm)
+    components/
+      ui/                         # shadcn/ui components
+      Header.tsx                  # App header with dark mode toggle
+      Layout.tsx                  # Shared layout wrapper
+    styles/
+      index.css                   # Tailwind + shadcn theme
+config/
+  routes.rb                       # Standard resourceful routes
+vite.config.ts                    # Vite + Inertia + React + Tailwind
+lefthook.yml                      # Pre-commit hooks (oxlint + RuboCop)
+oxlint.json                       # oxlint configuration
 ```
 
 ## Key Files
 
-- **`vite.config.ts`** — Vite with Ruby, Inertia, React, and Tailwind plugins
-- **`config/routes.rb`** — Standard Rails resourceful routes
-- **`app/controllers/products_controller.rb`** — Inertia controller
-- **`app/frontend/entrypoints/application.tsx`** — Client-side Inertia setup
-- **`app/frontend/entrypoints/ssr.tsx`** — Server-side rendering entrypoint
-- **`app/frontend/pages/`** — React page components mapped by Inertia
+If you want to understand how the integration works, start here:
+
+- **`vite.config.ts`** — How Vite, Inertia, React, and Tailwind are wired together
+- **`config/routes.rb`** — Standard Rails routes, no catch-all needed
+- **`app/controllers/products_controller.rb`** — How Rails passes props to React
+- **`app/frontend/entrypoints/application.tsx`** — How Inertia boots on the client
+- **`app/frontend/pages/Products/Index.tsx`** — A complete page with search, sort, and delete
+- **`lefthook.yml`** — How both linters run in parallel on every commit
