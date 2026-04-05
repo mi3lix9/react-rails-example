@@ -1,11 +1,10 @@
 import { createInertiaApp } from "@inertiajs/react";
 import ReactDOMServer from "react-dom/server";
+import Layout from "../components/Layout";
 
 createInertiaApp({
-  resolve: (name) => {
-    const pages = import.meta.glob("../pages/**/*.tsx", { eager: true });
-    return pages[`../pages/${name}.tsx`];
-  },
+  pages: "../pages",
+  layout: Layout,
   setup({ App, props }) {
     return ReactDOMServer.renderToString(<App {...props} />);
   },
