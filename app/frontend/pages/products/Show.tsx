@@ -1,5 +1,6 @@
 import { Link, router } from "@inertiajs/react";
 import Layout from "@/components/Layout";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,6 +30,7 @@ interface Props {
 }
 
 export default function Show({ product }: Props) {
+  const { addItem } = useCart();
   return (
     <div className="mx-auto max-w-md py-10 px-4">
       <Card>
@@ -42,6 +44,9 @@ export default function Show({ product }: Props) {
         <CardFooter className="flex gap-2">
           <Button asChild>
             <Link href={`/products/${product.id}/edit`}>Edit</Link>
+          </Button>
+          <Button variant="outline" onClick={() => addItem(product)}>
+            Add to Cart
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>

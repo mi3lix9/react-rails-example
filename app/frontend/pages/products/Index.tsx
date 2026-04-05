@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, router } from "@inertiajs/react";
+import { useCart } from "@/hooks/useCart";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ export default function Index({ products }: Props) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const { addItem } = useCart();
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -100,6 +102,7 @@ export default function Index({ products }: Props) {
             >
               Price{sortIndicator("price")}
             </TableHead>
+            <TableHead className="w-24 text-right">Cart</TableHead>
             <TableHead className="w-36 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -113,6 +116,15 @@ export default function Index({ products }: Props) {
               </TableCell>
               <TableCell className="text-right">
                 ${product.price.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-right">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addItem(product)}
+                >
+                  Add
+                </Button>
               </TableCell>
               <TableCell className="text-right space-x-1">
                 <Button variant="ghost" size="sm" asChild>
@@ -150,7 +162,7 @@ export default function Index({ products }: Props) {
           ))}
           {filtered.length === 0 && (
             <TableRow>
-              <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
+              <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                 No products found.
               </TableCell>
             </TableRow>
