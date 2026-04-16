@@ -59,4 +59,4 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "inertia_rails", "~> 3.19"
+gem "inertia_rails", "~> 3.21"
